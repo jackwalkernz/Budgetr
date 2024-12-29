@@ -1,4 +1,5 @@
 ﻿using Budgetr.App.Abstractions;
+using Budgetr.App.Views;
 
 using Microsoft.Extensions.DependencyInjection;
 
