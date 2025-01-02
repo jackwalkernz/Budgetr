@@ -1,4 +1,5 @@
-﻿using Budgetr.Core.Abstractions;
+﻿using Budgetr.App.Abstractions;
+using Budgetr.Core.Abstractions;
 
 using Serilog;
 

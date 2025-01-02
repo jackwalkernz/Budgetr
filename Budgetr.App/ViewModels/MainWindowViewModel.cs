@@ -15,9 +15,25 @@ namespace Budgetr.App.ViewModels
             _navigationService = navigationService;
         }
 
-        public void SetPage(Page page)
+        public void SetInitialPage()
         {
-            _navigationService.NavigateTo(page);
+            _navigationService.NavigateTo<Views.Pages.LandingPage>();
+        }
+
+        public bool NavigateToPage(Page page)
+        {
+            _logger.ForContext<MainWindowViewModel>().Debug("Navigating to page {Page}", page.Name);
+            try
+            {
+                _navigationService.NavigateTo(page);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.ForContext<MainWindowViewModel>().Error(ex, ex.Message);
+                return false;
+            }
+
         }
     }
 }

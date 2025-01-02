@@ -9,6 +9,6 @@
       Title="WelcomePage">
 
     <Grid>
-        
+        <TextBlock Text="WELCOME" FontSize="64" FontWeight="UltraBlack" HorizontalAlignment="Center" VerticalAlignment="Center"/>
     </Grid>
 </Page>

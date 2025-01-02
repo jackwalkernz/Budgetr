@@ -1,28 +1,50 @@
 ﻿using Budgetr.App.Abstractions;
-using Budgetr.App.Events;
+using Budgetr.App.Types.Notifications;
 using Budgetr.App.ViewModels;
-using Budgetr.App.Views.Pages;
 using Budgetr.Core.Abstractions;
 
 using System.Windows.Controls;
 
 namespace Budgetr.App
 {
-    internal sealed class ViewModelMediator : IMediator
+    public sealed class ViewModelMediator : IMediator
     {
-        private readonly LandingPageViewModel _landingPageViewModel;
-        private readonly MainWindowViewModel _mainWindowViewModel;
+        private readonly IViewModelFactory _viewModelFactory;
         private readonly IPageFactory _pageFactory;
-        public void Notify(object sender, EventArgs args)
+
+        public ViewModelMediator(IViewModelFactory viewModelFactory, IPageFactory pageFactory)
         {
-            if (sender is LandingPageViewModel)
+            _viewModelFactory = viewModelFactory ?? throw new ArgumentNullException(nameof(viewModelFactory));
+            _pageFactory = pageFactory ?? throw new ArgumentNullException(nameof(pageFactory));
+        }
+
+        public Task Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<TResponse> Send<TRequest, TResponse>(TRequest request, CancellationToken cancellationToken = default) where TRequest : class where TResponse : class
+        {
+            if (request is PageNavigationNotification changePageNotification)
             {
-                if (args is LandingPageEventArgs landingPageArgs)
-                {
-                    Page page = _pageFactory.GetPage<WelcomePage>("WelcomePage");
-                    _mainWindowViewModel.SetPage(page);
-                }
+                MainWindowViewModel mainWindowViewModel = _viewModelFactory.GetViewModel<MainWindowViewModel>();
+                mainWindowViewModel.NavigateToPage(changePageNotification.To);
+                return HandlePageNavigation(changePageNotification.From, changePageNotification.To) as TResponse;
             }
+            if (request is WindowLoadedNotification windowLoaded)
+            {
+                SplashPageViewModel _splashViewModel = _viewModelFactory.GetViewModel<SplashPageViewModel>();
+                await Task.Run(() => _splashViewModel.InitialiseBudgetr());
+            }
+
+            throw new NotSupportedException();
+        }
+
+        private PageNavigationResponse HandlePageNavigation(Page from, Page to)
+        {
+            MainWindowViewModel _mainWindowViewModel = _viewModelFactory.GetViewModel<MainWindowViewModel>();
+            bool successful = _mainWindowViewModel.NavigateToPage(to);
+            return new PageNavigationResponse(successful);
         }
     }
 }

@@ -1,6 +1,8 @@
-﻿using Serilog;
+﻿using Budgetr.Core.Abstractions;
 
-namespace Budgetr.Core.Abstractions
+using Serilog;
+
+namespace Budgetr.App.Abstractions
 {
     public class ViewModelBase
     {
@@ -16,6 +18,5 @@ namespace Budgetr.Core.Abstractions
         {
             _mediator = mediator;
         }
-
     }
 }

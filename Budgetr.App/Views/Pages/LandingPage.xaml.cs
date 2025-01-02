@@ -1,4 +1,5 @@
-﻿using Budgetr.App.ViewModels;
+﻿using Budgetr.App.Abstractions;
+using Budgetr.App.ViewModels;
 
 using System.Windows;
 using System.Windows.Controls;
@@ -10,15 +11,14 @@ namespace Budgetr.App.Views.Pages
     /// </summary>
     public partial class LandingPage : Page
     {
-        private LandingPageViewModel? _viewModel;
-        public LandingPage()
+        private readonly IViewModelFactory _viewModelFactory;
+        private readonly LandingPageViewModel _viewModel;
+        public LandingPage(IViewModelFactory viewModelFactory)
         {
             InitializeComponent();
-        }
-
-        public void SetServices(LandingPageViewModel viewModel)
-        {
-            _viewModel = viewModel;
+            _viewModelFactory = viewModelFactory;
+            _viewModel = _viewModelFactory.GetViewModel<LandingPageViewModel>();
+            DataContext = _viewModel;
         }
 
         private void OnEnterClick(object sender, RoutedEventArgs e)

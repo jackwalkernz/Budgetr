@@ -2,8 +2,9 @@
 using Budgetr.App.Factories;
 using Budgetr.App.Services;
 using Budgetr.App.ViewModels;
-using Budgetr.App.Views;
 using Budgetr.App.Views.Pages;
+using Budgetr.App.Views.Windows;
+using Budgetr.Core.Abstractions;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -12,6 +13,7 @@ using Serilog;
 using Serilog.Formatting.Compact;
 
 using System.Windows;
+using System.Windows.Controls;
 
 namespace Budgetr.App
 {
@@ -26,28 +28,33 @@ namespace Budgetr.App
         {
             ILogger logger = new Serilog.LoggerConfiguration()
                 .WriteTo.Console()
-                .WriteTo.File(new CompactJsonFormatter(), "log.json", Serilog.Events.LogEventLevel.Verbose, rollingInterval: RollingInterval.Day)
+                .WriteTo.File(new CompactJsonFormatter(), "logs/log.txt", Serilog.Events.LogEventLevel.Verbose, rollingInterval: RollingInterval.Day)
                 .WriteTo.Debug(Serilog.Events.LogEventLevel.Verbose)
                 .CreateLogger();
             _host = Host.CreateDefaultBuilder()
                 .ConfigureServices((context, services) =>
                 {
                     services.AddSerilog(logger);
-                    services.AddTransient<MainWindow>();
+                    services.AddSingleton<MainWindow>();
+                    services.AddSingleton<Frame>();
+                    services.AddSingleton<MainWindowViewModel>();
+                    services.AddSingleton<ViewModelMediator>();
                     services.AddTransient<LandingPage>();
-                    services.AddTransient<ViewModelMediator>();
-                    services.AddTransient<IWindowFactory<MainWindow>, MainWindowFactory>();
-                    services.AddTransient<MainWindowViewModel>();
-                    services.AddTransient<LandingPageViewModel>();
-                    services.AddTransient<LandingSplash>();
-                    services.AddTransient<WelcomePageViewModel>();
+                    services.AddSingleton<LandingPageViewModel>();
+                    services.AddTransient<SplashPage>();
+                    services.AddSingleton<SplashPageViewModel>();
+                    services.AddSingleton<WelcomePageViewModel>();
                     services.AddTransient<WelcomePage>();
-                    services.AddTransient<IPageFactory, PageFactory>();
-                    services.AddTransient<INavigationService, NavigationService>(sp =>
+                    services.AddSingleton<IPageFactory, PageFactory>();
+                    services.AddSingleton<IViewModelFactory, ViewModelFactory>();
+                    services.AddSingleton<IFrameFactory, FrameFactory>();
+                    services.AddSingleton<INavigationService, NavigationService>((sp) =>
                     {
+                        MainWindow window = (MainWindow)Application.Current.MainWindow;
+                        Frame mainFrame = window.MainFrame;
                         ILogger logger = sp.GetRequiredService<ILogger>();
-                        MainWindow window = sp.GetRequiredService<MainWindow>();
-                        return new NavigationService(window.MainFrame, logger);
+                        IPageFactory pageFactory = sp.GetRequiredService<IPageFactory>();
+                        return new NavigationService(mainFrame.NavigationService, logger, pageFactory);
                     });
                 })
                 .Build();
@@ -59,26 +66,21 @@ namespace Budgetr.App
             await _host.StartAsync();
             ILogger logger = _host.Services.GetRequiredService<ILogger>();
             logger.ForContext<App>().Information("Application started");
-            LandingSplash splash = _host.Services.GetRequiredService<LandingSplash>();
-            splash.Show();
-            Task.Run(() =>
-            {
-                Thread.Sleep(3000);
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    MainWindow window = _host.Services.GetRequiredService<IWindowFactory<MainWindow>>().CreateWindow();
-                    window.SetServices(logger, _host.Services.GetRequiredService<MainWindowViewModel>(), _host.Services.GetRequiredService<LandingPageViewModel>());
-                    window.Show();
-                    splash.Close();
-                });
-            });
+            SplashPage page = _host.Services.GetRequiredService<SplashPage>();
+            IViewModelFactory _viewModelFactory = _host.Services.GetRequiredService<IViewModelFactory>();
+            IFrameFactory frameFactory = _host.Services.GetRequiredService<IFrameFactory>();
+            IMediator mediator = _host.Services.GetRequiredService<IMediator>();
+            MainWindow window = new MainWindow(_viewModelFactory, logger, frameFactory, mediator);
+            INavigationService navigationService = _host.Services.GetRequiredService<INavigationService>();
+            navigationService.NavigateTo(page);
+            window.Show();
         }
 
         protected override async void OnExit(ExitEventArgs e)
         {
-            base.OnExit(e);
             await _host.StopAsync();
             _host.Dispose();
+            base.OnExit(e);
         }
     }
 }
