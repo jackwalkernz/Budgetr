@@ -1,5 +1,4 @@
 ﻿using Budgetr.App.Abstractions;
-using Budgetr.App.Types.Notifications;
 using Budgetr.App.ViewModels;
 using Budgetr.Core.Abstractions;
 
@@ -20,7 +19,8 @@ namespace Budgetr.App.Views.Windows
         private readonly MainWindowViewModel _viewModel;
         private readonly IFrameFactory _frameFactory;
         private readonly IMediator _mediator;
-        public MainWindow(IViewModelFactory viewModelFactory, ILogger logger, IFrameFactory frameFactory, IMediator mediator) : base()
+        private readonly IPageFactory _pageFactory;
+        public MainWindow(IViewModelFactory viewModelFactory, ILogger logger, IFrameFactory frameFactory, IMediator mediator, IPageFactory pageFactory) : base()
         {
             InitializeComponent();
 
@@ -29,23 +29,9 @@ namespace Budgetr.App.Views.Windows
             _frameFactory = frameFactory ?? throw new ArgumentNullException(nameof(frameFactory));
             _viewModel = viewModelFactory.GetViewModel<MainWindowViewModel>() ?? throw new ArgumentNullException(nameof(viewModelFactory));
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+            _pageFactory = pageFactory ?? throw new ArgumentNullException(nameof(pageFactory));
             MainFrame = _frameFactory.GetFrame<Frame>();
             DataContext = _viewModel;
-        }
-
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            using (CancellationTokenSource cts = new CancellationTokenSource())
-            {
-                try
-                {
-                    _mediator.Send<WindowLoadedNotification, WindowLoadedResponse>(new WindowLoadedNotification(), cts.Token);
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error(ex, "An error occurred while loading the window.");
-                }
-            }
         }
     }
 }

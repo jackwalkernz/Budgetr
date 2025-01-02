@@ -2,8 +2,8 @@
 
 namespace Budgetr.App.Abstractions
 {
-    internal interface IWindowFactory<TWindow> where TWindow : Window
+    internal interface IWindowFactory
     {
-        TWindow CreateWindow();
+        TWindow GetWindow<TWindow>() where TWindow : Window;
     }
 }

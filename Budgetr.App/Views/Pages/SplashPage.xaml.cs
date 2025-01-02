@@ -16,7 +16,7 @@ namespace Budgetr.App.Views.Pages
         {
             InitializeComponent();
             _viewModelFactory = viewModelFactory ?? throw new ArgumentNullException(nameof(viewModelFactory));
-            _viewModel = _viewModelFactory.GetViewModel<SplashPageViewModel>() ?? throw new ArgumentNullException(nameof(viewModelFactory));
+            _viewModel = _viewModelFactory.GetViewModel<SplashPageViewModel>() ?? throw new InvalidOperationException("The view model factory could not create a view model for the splash page.");
             DataContext = _viewModel;
         }
     }

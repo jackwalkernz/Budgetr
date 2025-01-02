@@ -39,7 +39,7 @@ namespace Budgetr.App
                     services.AddSingleton<Frame>();
                     services.AddSingleton<MainWindowViewModel>();
                     services.AddSingleton<ViewModelMediator>();
-                    services.AddTransient<LandingPage>();
+                    services.AddTransient<HomePage>();
                     services.AddSingleton<LandingPageViewModel>();
                     services.AddTransient<SplashPage>();
                     services.AddSingleton<SplashPageViewModel>();
@@ -56,6 +56,7 @@ namespace Budgetr.App
                         IPageFactory pageFactory = sp.GetRequiredService<IPageFactory>();
                         return new NavigationService(mainFrame.NavigationService, logger, pageFactory);
                     });
+                    services.AddSingleton<IMediator, ViewModelMediator>();
                 })
                 .Build();
         }
@@ -66,12 +67,13 @@ namespace Budgetr.App
             await _host.StartAsync();
             ILogger logger = _host.Services.GetRequiredService<ILogger>();
             logger.ForContext<App>().Information("Application started");
-            SplashPage page = _host.Services.GetRequiredService<SplashPage>();
             IViewModelFactory _viewModelFactory = _host.Services.GetRequiredService<IViewModelFactory>();
             IFrameFactory frameFactory = _host.Services.GetRequiredService<IFrameFactory>();
             IMediator mediator = _host.Services.GetRequiredService<IMediator>();
-            MainWindow window = new MainWindow(_viewModelFactory, logger, frameFactory, mediator);
+            IPageFactory pageFactory = _host.Services.GetRequiredService<IPageFactory>();
+            MainWindow window = new MainWindow(_viewModelFactory, logger, frameFactory, mediator, pageFactory);
             INavigationService navigationService = _host.Services.GetRequiredService<INavigationService>();
+            HomePage page = _host.Services.GetRequiredService<HomePage>();
             navigationService.NavigateTo(page);
             window.Show();
         }

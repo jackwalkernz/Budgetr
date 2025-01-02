@@ -34,7 +34,7 @@ namespace Budgetr.App
             if (request is WindowLoadedNotification windowLoaded)
             {
                 SplashPageViewModel _splashViewModel = _viewModelFactory.GetViewModel<SplashPageViewModel>();
-                await Task.Run(() => _splashViewModel.InitialiseBudgetr());
+                return new WindowLoadedResponse() as TResponse;
             }
 
             throw new NotSupportedException();

@@ -18,7 +18,7 @@ namespace Budgetr.App.ViewModels
         {
             _logger.ForContext<LandingPageViewModel>().Debug("Enter button clicked");
             WelcomePage welcomePage = _pageFactory.GetPage<WelcomePage>();
-            LandingPage landingPage = _pageFactory.GetPage<LandingPage>();
+            HomePage landingPage = _pageFactory.GetPage<HomePage>();
             using (CancellationTokenSource cts = new CancellationTokenSource())
             {
                 PageNavigationResponse pageNavigationResponse = await _mediator.Send<PageNavigationNotification, PageNavigationResponse>(new PageNavigationNotification(landingPage, welcomePage), cts.Token);

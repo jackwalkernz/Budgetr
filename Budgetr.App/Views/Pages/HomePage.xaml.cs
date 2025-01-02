@@ -3,17 +3,16 @@ using Budgetr.App.ViewModels;
 
 using System.Windows;
 using System.Windows.Controls;
-
 namespace Budgetr.App.Views.Pages
 {
     /// <summary>
-    /// Interaction logic for LandingPage.xaml
+    /// Interaction logic for HomePage.xaml
     /// </summary>
-    public partial class LandingPage : Page
+    public partial class HomePage : Page
     {
         private readonly IViewModelFactory _viewModelFactory;
         private readonly LandingPageViewModel _viewModel;
-        public LandingPage(IViewModelFactory viewModelFactory)
+        public HomePage(IViewModelFactory viewModelFactory)
         {
             InitializeComponent();
             _viewModelFactory = viewModelFactory;
@@ -24,6 +23,16 @@ namespace Budgetr.App.Views.Pages
         private void OnEnterClick(object sender, RoutedEventArgs e)
         {
             _viewModel?.EnterClicked();
+        }
+
+        private void OnNewBudgetClicked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void OnMyBudgetsClicked(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

@@ -8,14 +8,9 @@ namespace Budgetr.App.Abstractions
     {
         protected IMediator _mediator;
         protected ILogger _logger;
-        protected ViewModelBase(ILogger logger, IMediator mediator = null)
+        protected ViewModelBase(ILogger logger, IMediator mediator)
         {
             _logger = logger;
-            _mediator = mediator;
-        }
-
-        public void SetMediator(IMediator mediator)
-        {
             _mediator = mediator;
         }
     }

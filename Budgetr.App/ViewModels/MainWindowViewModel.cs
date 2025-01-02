@@ -17,7 +17,7 @@ namespace Budgetr.App.ViewModels
 
         public void SetInitialPage()
         {
-            _navigationService.NavigateTo<Views.Pages.LandingPage>();
+            _navigationService.NavigateTo<Views.Pages.HomePage>();
         }
 
         public bool NavigateToPage(Page page)
